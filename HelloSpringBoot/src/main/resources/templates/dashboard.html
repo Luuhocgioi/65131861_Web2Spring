@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Interface</title>
+    <style>
+        /* Thiết lập cơ bản */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            width: 1000px;
+            background-color: white;
+            border: 1px solid black;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid black;
+            padding: 5px 15px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-placeholder {
+            width: 50px;
+            height: 50px;
+            border: 1px dashed #ccc; /* Thay bằng thẻ img nếu có file ảnh */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .school-info {
+            font-size: 14px;
+            font-weight: bold;
+            color: #003366;
+            text-transform: uppercase;
+        }
+
+        .username {
+            font-size: 18px;
+        }
+
+        /* Layout Chính */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 400px;
+        }
+
+        /* Sidebar */
+        aside {
+            border-right: 1px solid black;
+        }
+
+        .menu-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid black;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .menu-item.bold {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .spacer {
+            height: 40px;
+            border-bottom: 1px solid black;
+        }
+
+        /* Vùng nội dung */
+        main {
+            background-color: #eeeeee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Phần Đầu -->
+        <header>
+            <div class="logo-section">
+                <div class="logo-placeholder">LOGO</div>
+                <div class="school-info">
+                    TRƯỜNG ĐẠI HỌC NHA TRANG<br>
+                    KHOA CÔNG NGHỆ THÔNG TIN
+                </div>
+            </div>
+            <div class="username">[UserName]</div>
+        </header>
+
+        <!-- Phần Thân -->
+        <div class="main-layout">
+            <aside>
+                <div class="menu-item bold">Dasdboard</div>
+                <div class="menu-item">Topic - List</div>
+                <div class="menu-item">Topic - Addnew</div>
+                <div class="spacer"></div>
+                <div class="menu-item">Student - List</div>
+                <div class="menu-item">Student - Adnew</div>
+            </aside>
+
+            <main>
+                Content
+            </main>
+        </div>
+
+        <!-- Phần Chân -->
+        <footer>
+            ©2025 by Student Name – FIT.NTU
+        </footer>
+    </div>
+
+</body>
+</html>
