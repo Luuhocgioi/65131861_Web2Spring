@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<main>
+    <div style="padding: 20px; width: 100%;">
+        <h2 style="margin-bottom: 15px;">Danh sách các trang (Page List)</h2>
+        
+        <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 8px;">id</th>
+                    <th style="padding: 8px;">Pagename</th>
+                    <th style="padding: 8px;">parentPageId</th>
+                    <th style="padding: 8px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Vòng lặp lấy dữ liệu từ listPages truyền từ Controller -->
+                <tr th:each="page : ${listPages}">
+                    <td style="padding: 8px;" th:text="${page.id}">1</td>
+                    <td style="padding: 8px;" th:text="${page.pageName}">Trang chủ</td>
+                    <td style="padding: 8px;" th:text="${page.parentPageId}">0</td>
+                    <td style="padding: 8px;">
+                        <!-- Các liên kết hành động -->
+                        [<a th:href="@{/page/view/{id}(id=${page.id})}" style="color: blue; text-decoration: underline;">view</a>] 
+                        [<a th:href="@{/page/edit/{id}(id=${page.id})}" style="color: blue; text-decoration: underline;">edit</a>] 
+                        [<a th:href="@{/page/delete/{id}(id=${page.id})}" style="color: blue; text-decoration: underline;">delete</a>]
+                    </td>
+                </tr>
+                
+                <!-- Hiển thị thông báo nếu danh sách trống -->
+                <tr th:if="${#lists.isEmpty(listPages)}">
+                    <td colspan="4" style="text-align: center; padding: 10px;">Không có dữ liệu trang.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
