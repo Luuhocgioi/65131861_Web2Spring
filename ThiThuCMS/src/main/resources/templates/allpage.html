@@ -1,30 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>Quản lý Trang</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .school-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #003366;
+            line-height: 1.2;
+        }
+
+        .user-info {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        aside {
+            width: 240px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .menu-item {
+            padding: 12px 25px;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s;
+        }
+
+        .menu-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .menu-item.active {
+            font-weight: bold;
+            background-color: #e9ecef;
+            border-left: 4px solid #003366;
+        }
+
+        main {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            color: #444;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background-color: #fcfcfc;
+        }
+
+        .btn-action {
+            text-decoration: none;
+            font-size: 13px;
+            margin-right: 5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .view { color: #0d6efd; }
+        .edit { color: #ffc107; }
+        .delete { color: #dc3545; }
+
+        .btn-action:hover {
+            opacity: 0.7;
+            text-decoration: underline;
+        }
+
+        footer {
+            background: #ffffff;
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 13px;
+            color: #777;
+        }
+    </style>
 </head>
 <body>
-<table border="1">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Tên trang</th>
-            <th>Từ khóa</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- 'lstPages' phải khớp với tên bạn đặt trong Controller -->
-        <tr th:each="p : ${lstPages}">
-            <td th:text="${p.id}"></td>
-            <td th:text="${p.pageName}"></td>
-            <td th:text="${p.keyword}"></td>
-            <td>
-                [view] [edit] [delete]
-            </td>
-        </tr>
-    </tbody>
-</table>
+
+    <header>
+        <div class="logo-area">
+            <div class="school-name">
+                TRƯỜNG ĐẠI HỌC NHA TRANG<br>
+                KHOA CÔNG NGHỆ THÔNG TIN
+            </div>
+        </div>
+        <div class="user-info">[Admin_Name]</div>
+    </header>
+
+    <div class="container">
+        <aside>
+            <a href="#" class="menu-item">Dashboard</a>
+            <a href="#" class="menu-item active">Page - List</a>
+            <a href="#" class="menu-item">Page - Add New</a>
+            <a href="#" class="menu-item">Post - List</a>
+            <a href="#" class="menu-item">Post - Add New</a>
+        </aside>
+
+        <main>
+            <div class="card">
+                <h2>Danh sách các trang</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên trang</th>
+                            <th>Từ khóa</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${lstPages}">
+                            <td th:text="${p.id}"></td>
+                            <td th:text="${p.pageName}"></td>
+                            <td th:text="${p.keyword}"></td>
+                            <td>
+                                <a href="#" class="btn-action view">[view]</a>
+                                <a href="#" class="btn-action edit">[edit]</a>
+                                <a href="#" class="btn-action delete">[delete]</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        ©2026 by Student Name – FIT.NTU
+    </footer>
+
 </body>
 </html>
