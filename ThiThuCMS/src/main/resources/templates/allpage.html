@@ -158,14 +158,14 @@
                 KHOA CÔNG NGHỆ THÔNG TIN
             </div>
         </div>
-        <div class="user-info">[Admin_Name]</div>
+        <div class="user-info">Nguyen Hoang Luu</div>
     </header>
 
     <div class="container">
         <aside>
-            <a href="#" class="menu-item">Dashboard</a>
+            <a th:href="@{/}" class="menu-item">Dashboard</a>
             <a href="#" class="menu-item active">Page - List</a>
-            <a href="#" class="menu-item">Page - Add New</a>
+            <a th:href="@{/page/new}" class="menu-item">Page - Add New</a>
             <a href="#" class="menu-item">Post - List</a>
             <a href="#" class="menu-item">Post - Add New</a>
         </aside>
@@ -176,11 +176,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Tên trang</th>
-                            <th>Từ khóa</th>
-                            <th>Hành động</th>
-                        </tr>
+                            <th>id</th>
+                            <th>Pagename</th>
+                            <th>parentPageId</th>
+                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="p : ${lstPages}">
@@ -188,7 +187,7 @@
                             <td th:text="${p.pageName}"></td>
                             <td th:text="${p.keyword}"></td>
                             <td>
-                                <a href="#" class="btn-action view">[view]</a>
+                                <a href="/page/view/p.id" class="btn-action view">[view]</a>
                                 <a href="#" class="btn-action edit">[edit]</a>
                                 <a href="#" class="btn-action delete">[delete]</a>
                             </td>

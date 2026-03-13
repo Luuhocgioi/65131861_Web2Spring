@@ -12,10 +12,10 @@ import thiGK.ntu._1.nguyenhoangluu_fitCMS.models.Post;
 @Controller
 
 public class HomeController {
-//	@GetMapping("/index")
-//	public String home() {
-//		return "index";
-//	}
+	@GetMapping("/index")
+	public String home() {
+		return "index";
+	}
 	//Danh sach page, post
 	ArrayList<Page> dsTrang = new ArrayList<Page>();
 	ArrayList<Post> dsBaiViet = new ArrayList<Post>();
@@ -30,6 +30,11 @@ public class HomeController {
 		m.addAttribute("lstPages",dsTrang);
 		
 		return "allpage";
+	}
+	@GetMapping("/page/new")
+	public String themTrang(ModelMap m) {
+		m.addAttribute("pageMoi",new Page());
+		return "addnew";
 	}
 	//Action
 }

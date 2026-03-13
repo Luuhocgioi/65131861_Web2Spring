@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Trang Mới - FIT CMS</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f7f6; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #ffffff; border-bottom: 1px solid #ddd; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .school-name { font-size: 14px; font-weight: bold; color: #003366; line-height: 1.2; }
+        .user-info { font-weight: 500; color: #555; background: #eee; padding: 5px 15px; border-radius: 15px; }
+        .container { display: flex; flex: 1; }
+        aside { width: 240px; background-color: #ffffff; border-right: 1px solid #ddd; padding-top: 20px; }
+        .menu-item { padding: 12px 25px; color: #333; text-decoration: none; display: block; border-bottom: 1px solid #f0f0f0; transition: background 0.3s; }
+        .menu-item:hover { background-color: #f8f9fa; }
+        .menu-item.active { font-weight: bold; background-color: #e9ecef; border-left: 4px solid #003366; }
+        main { flex: 1; padding: 30px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { margin-bottom: 20px; color: #333; font-size: 1.5rem; }
+        footer { background: #ffffff; text-align: center; padding: 15px; border-top: 1px solid #ddd; font-size: 13px; color: #777; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #444; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn-submit {
+            background-color: #003366;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .btn-submit:hover { background-color: #002244; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="school-name">TRƯỜNG ĐẠI HỌC NHA TRANG<br>KHOA CÔNG NGHỆ THÔNG TIN</div>
+        </div>
+        <div class="user-info">Nguyen Hoang Luu</div>
+    </header>
+
+    <div class="container">
+        <aside>
+            <a href="#" class="menu-item">Dashboard</a>
+            <a th:href="@{/page/all}" class="menu-item">Page - List</a>
+            <a th:href="@{/page/new}" class="menu-item active">Page - Add New</a>
+            <a href="#" class="menu-item">Post - List</a>
+            <a href="#" class="menu-item">Post - Add New</a>
+        </aside>
+
+        <main>
+            <div class="card">
+                <h2>Thêm Trang Mới</h2>
+                
+                <form th:action="@{/page/save}" th:object="${pageMoi}" method="post">
+                    
+                    <div class="form-group">
+                        <label>ID Trang</label>
+                        <input type="number" th:field="*{id}" required placeholder="Nhập số ID...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tên trang (PageName)</label>
+                        <input type="text" th:field="*{pageName}" required placeholder="Ví dụ: Dịch vụ...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Từ khóa (Keyword)</label>
+                        <input type="text" th:field="*{keyword}" placeholder="Ví dụ: dichvu, service...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nội dung (Content)</label>
+                        <textarea th:field="*{content}" rows="4" placeholder="Nhập nội dung trang..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ID Trang Cha (ParentPageId)</label>
+                        <input type="number" th:field="*{parentPageId}" value="0">
+                    </div>
+
+                    <button type="submit" class="btn-submit">Lưu dữ liệu</button>
+                    
+                </form>
+                </div>
+        </main>
+    </div>
+
+    <footer>©2026 by Nguyen Hoang Luu – FIT.NTU</footer>
+
+</body>
+</html>
