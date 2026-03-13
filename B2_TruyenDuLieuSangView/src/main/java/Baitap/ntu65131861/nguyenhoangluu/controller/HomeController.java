@@ -13,6 +13,6 @@ public class HomeController {
 		m.addAttribute("HoTen","Nguyen Hoang Luu");
 		m.addAttribute("NamSinh","02/07/2005");
 		m.addAttribute("Gioitinh","Nam" );
-		return "infoSV.html";
+		return "infoSV";
 	}
 }
