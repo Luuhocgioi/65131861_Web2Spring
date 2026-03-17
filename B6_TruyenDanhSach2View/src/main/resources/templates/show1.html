@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách sinh viên</title>
+    <style>
+        .table-container {
+            max-width: 800px; margin: 40px auto; font-family: sans-serif;
+        }
+        table {
+            width: 100%; border-collapse: collapse; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        th { background-color: #007bff; color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; }
+        tr:hover { background-color: #f5f5f5; }
+        .btn-back {
+            display: inline-block; margin-bottom: 20px; padding: 10px 15px;
+            background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="table-container">
+    <h2>DANH SÁCH SINH VIÊN</h2>
+    
+    <a th:href="@{/}" class="btn-back">+ Thêm sinh viên mới</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>MSSV</th>
+                <th>Họ và Tên</th>
+                <th>Năm sinh</th>
+                <th>Giới tính</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="sv : ${ds}">
+                <td th:text="${sv.mssv}"></td>
+                <td th:text="${sv.name}"></td>
+                <td th:text="${sv.namsinh}"></td>
+                <td th:text="${sv.gtinh}"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

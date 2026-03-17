@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhập thông tin</title>
+    <style>
+        .form-container {
+            max-width: 400px; margin: 50px auto; padding: 20px;
+            border: 1px solid #ccc; border-radius: 8px; font-family: sans-serif;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold;}
+        .form-group input { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Nhập Thông Tin Sinh Viên</h2>
+    
+    <form th:action="@{/luuSV}" th:object="${sv}" method="post">
+        
+        <div class="form-group">
+            <label>Mã số sinh viên:</label>
+            <input type="text" th:field="*{mssv}" required />
+        </div>
+        
+        <div class="form-group">
+            <label>Tên sinh viên:</label>
+            <input type="text" th:field="*{name}" required />
+        </div>
+        
+        <div class="form-group">
+            <label>Năm sinh:</label>
+            <input type="text" th:field="*{namsinh}" />
+        </div>
+        
+        <div class="form-group">
+            <label>Giới tính:</label>
+            <input type="text" th:field="*{gtinh}" />
+        </div>
+        
+        <button type="submit">Truyền sang View 2</button>
+    </form>
+</div>
+
+</body>
+</html>
