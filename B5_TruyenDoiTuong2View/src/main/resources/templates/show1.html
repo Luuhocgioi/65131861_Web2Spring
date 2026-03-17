@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông tin sinh viên</title>
+    
+    <style>
+        .student-card {
+            max-width: 400px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            margin: 30px auto; 
+        }
+        .card-header {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+        .card-body {
+            padding: 25px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .info-value {
+            color: #222;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="student-card">
+        <div class="card-header">
+            <h2>THÔNG TIN SINH VIÊN</h2>
+        </div>
+        <div class="card-body">
+            <div class="info-row">
+                <span class="info-label">MSSV:</span>
+                <span class="info-value" th:text="${sv.mssv}"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tên sinh viên:</span>
+                <span class="info-value" th:text="${sv.name}"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Năm sinh:</span>
+                <span class="info-value" th:text="${sv.namsinh}"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Giới tính:</span>
+                <span class="info-value" th:text="${sv.gtinh}"></span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
