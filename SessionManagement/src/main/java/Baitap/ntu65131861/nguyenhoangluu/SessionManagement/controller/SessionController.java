@@ -14,7 +14,7 @@ public class SessionController {
     @GetMapping("/create")
     public String createSession(HttpSession session) {
         // Set a session attribute (e.g., username)
-        session.setAttribute("username", "JohnDoe");
+        session.setAttribute("username", "Luu");
 
         // Retrieve and return the session ID
         String sessionId = session.getId();
