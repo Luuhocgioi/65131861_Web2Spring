@@ -22,18 +22,18 @@ public class WebController {
     public String showAllProducts(Model model) {
         model.addAttribute("products", productRepository.findAll());
         model.addAttribute("categories", categoryRepository.findAll());
-        return "products"; // Trả về file products.html
+        return "products"; //
     }
 
     @GetMapping("/products/category/{categoryId}")
-    public String showProductsByCategory(@PathVariable Long categoryId, Model model) {
+    public String showProductsByCategory(@PathVariable("categoryId") Long categoryId, Model model) {
         model.addAttribute("products", productRepository.findByCategoryId(categoryId));
         model.addAttribute("categories", categoryRepository.findAll());
         return "products"; 
     }
 
     @GetMapping("/product/{id}")
-    public String showProductDetail(@PathVariable Long id, Model model) {
+    public String showProductDetail(@PathVariable("id") Long id, Model model) {
         sanpham product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid product Id:" + id));
         model.addAttribute("product", product);
