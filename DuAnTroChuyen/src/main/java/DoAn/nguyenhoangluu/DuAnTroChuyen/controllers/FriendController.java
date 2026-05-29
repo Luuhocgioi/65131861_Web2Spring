@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import DoAn.nguyenhoangluu.DuAnTroChuyen.entity.*;
 import DoAn.nguyenhoangluu.DuAnTroChuyen.repository.*;
 
@@ -26,10 +28,12 @@ public class FriendController {
 
     @GetMapping("/friends")
     public String friends(Model model,
+                          @RequestParam(name = "q", required = false) String q,
                           HttpSession session) {
 
         SinhVien sv =
                 (SinhVien) session.getAttribute("user");
+        if (sv == null) return "redirect:/login";
 
         model.addAttribute(
                 "requests",
@@ -40,6 +44,12 @@ public class FriendController {
                         "PENDING"
                 )
         );
+        model.addAttribute("sv", sv);
+        model.addAttribute("allStudents", sinhVienRepository.findAll());
+        model.addAttribute("q", q);
+        if (q != null && !q.trim().isEmpty()) {
+            model.addAttribute("students", sinhVienRepository.searchByMssvOrHoTen(q.trim()));
+        }
 
         return "friends";
     }
@@ -85,6 +95,13 @@ public class FriendController {
         messagingTemplate.convertAndSend(
                 "/topic/friend/" + nguoiNhan.getMssv(),
                 payload
+        );
+        messagingTemplate.convertAndSend(
+                "/topic/notify/" + nguoiNhan.getMssv(),
+                (Object) Map.of("type", "FRIEND_REQUEST",
+                       "senderMssv", nguoiGui.getMssv(),
+                       "senderName", nguoiGui.getHoTen(),
+                       "preview", "Co loi moi ket ban")
         );
         return "redirect:/friends";
     }

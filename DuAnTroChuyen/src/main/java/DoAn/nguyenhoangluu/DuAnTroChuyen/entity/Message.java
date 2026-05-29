@@ -21,6 +21,10 @@ public class Message {
 
     private String fileName;
 
+    private boolean seen;
+
+    private LocalDateTime seenAt;
+
     @ManyToOne
     @JoinColumn(name = "mssv")
     private SinhVien nguoiGui;
@@ -90,6 +94,22 @@ public class Message {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
+
+    public LocalDateTime getSeenAt() {
+        return seenAt;
+    }
+
+    public void setSeenAt(LocalDateTime seenAt) {
+        this.seenAt = seenAt;
     }
 
     public void setId(Long id) {

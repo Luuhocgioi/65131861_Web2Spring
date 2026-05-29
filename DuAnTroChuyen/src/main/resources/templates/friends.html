@@ -109,6 +109,7 @@
   .request-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 2px; }
   .request-mssv { font-size: 12px; color: var(--muted); }
   .request-actions { display: flex; gap: 8px; }
+  .student-results { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; max-width: 640px; }
 
   .btn-accept, .btn-reject {
     padding: 7px 16px; border-radius: 7px;
@@ -154,10 +155,45 @@
 
     <div class="content">
 
+      <div>
+        <div class="section-head">
+          <h2>Tim kiem sinh vien</h2>
+          <div class="line"></div>
+        </div>
+        <form th:action="@{/friends}" method="get" class="search-form">
+          <input type="text" name="q" th:value="${q}"
+                 placeholder="Nhap MSSV hoac ho ten..."
+                 autocomplete="off" />
+          <button type="submit" class="btn-primary">Tim</button>
+        </form>
+
+        <div class="student-results" th:if="${students != null}">
+          <th:block th:if="${#lists.isEmpty(students)}">
+            <div class="empty">Khong tim thay sinh vien phu hop.</div>
+          </th:block>
+          <th:block th:each="student : ${students}">
+            <div class="request-card" th:if="${student.mssv != sv.mssv}">
+              <div class="avatar" th:text="${#strings.substring(student.hoTen, 0, 1)}">A</div>
+              <div class="request-info">
+                <div class="request-name" th:text="${student.hoTen}">Ho ten</div>
+                <div class="request-mssv">
+                  <span th:text="${student.mssv}">MSSV</span> -
+                  <span th:text="${student.online ? 'Online' : 'Offline'}">Offline</span>
+                </div>
+              </div>
+              <form th:action="@{/friends/add}" method="post">
+                <input type="hidden" name="mssv" th:value="${student.mssv}" />
+                <button type="submit" class="btn-primary">Ket ban</button>
+              </form>
+            </div>
+          </th:block>
+        </div>
+      </div>
+
       <!-- GỬI LỜI MỜI — khớp với @PostMapping("/friends/add") -->
       <div>
         <div class="section-head">
-          <h2>Gửi lời mời</h2>
+          <h2>Gửi lời mời nhanh</h2>
           <div class="line"></div>
         </div>
         <form th:action="@{/friends/add}" method="post" class="search-form">
@@ -212,6 +248,20 @@
 
 <script th:inline="javascript">
 const mssv = /*[[${session.user.mssv}]]*/ '';
+const presenceClientId = 'friends-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+function sendHeartbeat() {
+    fetch('/api/presence/heartbeat?clientId=' + encodeURIComponent(presenceClientId), { method: 'POST' }).catch(() => {});
+}
+
+function sendOffline() {
+    const url = '/api/presence/offline?clientId=' + encodeURIComponent(presenceClientId);
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon(url);
+    } else {
+        fetch(url, { method: 'POST', keepalive: true }).catch(() => {});
+    }
+}
 
 // ── Thêm card lời mời vào DOM ngay lập tức, không reload ──
 function addRequestCard(data) {
@@ -286,6 +336,7 @@ function connect() {
 
     stompClient.connect({}, function () {
         console.log('[WS] Connected, subscribing to /topic/friend/' + mssv);
+        stompClient.send('/app/presence', {}, JSON.stringify({mssv: mssv, online: true, clientId: presenceClientId}));
 
         stompClient.subscribe('/topic/friend/' + mssv, function (frame) {
             try {
@@ -296,6 +347,13 @@ function connect() {
             }
         });
 
+        stompClient.subscribe('/topic/notify/' + mssv, function (frame) {
+            const data = JSON.parse(frame.body);
+            if (data.type === 'MESSAGE') {
+                showToast(data.senderName + ': ' + data.preview);
+            }
+        });
+
     }, function (error) {
         // Mất kết nối → thử lại sau 5 giây
         console.warn('[WS] Mất kết nối, thử lại sau 5s...', error);
@@ -303,6 +361,9 @@ function connect() {
     });
 }
 
+sendHeartbeat();
+setInterval(sendHeartbeat, 10000);
+window.addEventListener('pagehide', sendOffline);
 connect();
 </script>
 </body>

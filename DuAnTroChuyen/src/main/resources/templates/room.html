@@ -28,6 +28,13 @@
   .nav-link.active { background: rgba(212,245,60,0.08); color: var(--accent); border-left: 2px solid var(--accent); padding-left: 10px; }
   .nav-link.active-private { background: rgba(56,217,245,0.08); color: #38d9f5; border-left: 2px solid #38d9f5; padding-left: 10px; }
   .nav-link .icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+  .nav-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .unread-badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #f87171; color: #0f1013; font-size: 11px; font-weight: 800; display: none; align-items: center; justify-content: center; flex-shrink: 0; }
+  .unread-badge.show { display: inline-flex; }
+  .presence-state { font-size: 10px; font-weight: 700; text-transform: uppercase; flex-shrink: 0; }
+  .presence-state.online { color: #4ade80; }
+  .presence-state.offline { color: #6b7280; }
+  .nav-link.has-unread { background: rgba(248,113,113,0.1); color: var(--text); }
   .spacer { flex: 1; }
   .online-badge { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; }
   .online-badge .dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; }
@@ -106,6 +113,11 @@
   .msg-file .file-dl:hover { background: rgba(212,245,60,0.2); }
 
   .msg-time { font-size: 10px; color: var(--muted); padding: 0 4px; }
+  .seen-marker { font-size: 10px; color: #38d9f5; padding: 0 4px; display: none; }
+  .seen-marker.show { display: block; }
+  .presence-dot { display: inline-block; width: 8px; height: 8px; background: #6b7280; border-radius: 50%; flex-shrink: 0; }
+  .presence-dot.online { background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.12); }
+  .presence-dot.offline { background: #6b7280; }
 
   /* INPUT */
   .input-bar { padding: 16px 28px; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
@@ -169,20 +181,31 @@
     <div class="nav-label">Phòng nhóm</div>
     <th:block th:each="r : ${rooms}">
       <a th:href="@{/room/{id}(id=${r.id})}" class="nav-link"
+         th:data-room="${r.id}"
          th:classappend="${r.id == room.id} ? ' active' : ''">
         <span class="icon">#</span>
-        <span th:text="${r.tenRoom}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        <span class="nav-text" th:text="${r.tenRoom}"></span>
+        <span class="unread-badge" th:attr="data-badge-room=${r.id}">0</span>
       </a>
     </th:block>
     <div class="nav-label">Chat riêng</div>
     <th:block th:each="r : ${privateRooms}">
       <a th:href="@{/room/{id}(id=${r.id})}" class="nav-link"
+         th:data-room="${r.id}"
+         th:data-user="${r.user1.mssv == sv.mssv ? r.user2.mssv : r.user1.mssv}"
          th:classappend="${r.id == room.id} ? ' active-private' : ''">
         <span class="icon">@</span>
+        <span class="presence-dot"
+              th:classappend="${r.user1.mssv == sv.mssv ? r.user2.online : r.user1.online} ? ' online' : ' offline'"></span>
  <span
       th:text="${r.user1.mssv == sv.mssv ? r.user2.hoTen : r.user1.hoTen}"
-      style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-    </span>      </a>
+      class="nav-text">
+    </span>
+        <span class="presence-state"
+              th:classappend="${r.user1.mssv == sv.mssv ? r.user2.online : r.user1.online} ? ' online' : ' offline'"
+              th:text="${r.user1.mssv == sv.mssv ? (r.user2.online ? 'Online' : 'Offline') : (r.user1.online ? 'Online' : 'Offline')}">Offline</span>
+        <span class="unread-badge" th:attr="data-badge-room=${r.id}">0</span>
+      </a>
     </th:block>
     <div class="spacer"></div>
     <div class="online-badge"><div class="dot"></div>Đang hoạt động</div>
@@ -241,6 +264,9 @@
           </div>
 
           <div class="msg-time" th:text="${msg.thoiGian}">00:00</div>
+          <div class="seen-marker"
+               th:if="${msg.nguoiGui.mssv == sv.mssv}"
+               th:classappend="${msg.seen} ? ' show' : ''">Da xem</div>
         </div>
       </th:block>
     </div>
@@ -278,6 +304,11 @@
   const roomId = /*[[${room.id}]]*/ 0;
   const myMssv = /*[[${sv.mssv}]]*/ "";
   const myName = /*[[${sv.hoTen}]]*/ "";
+  const currentRoomType = /*[[${room.loaiRoom}]]*/ "";
+  const sidebarRoomIds = (/*[[${sidebarRoomIds}]]*/ []) || [];
+  const unreadPrefix = 'chatUnread:';
+  const recentlyCounted = new Set();
+  const presenceClientId = 'room-' + roomId + '-' + Date.now() + '-' + Math.random().toString(36).slice(2);
 
   let stompClient = null;
   let selectedFile = null;
@@ -287,9 +318,30 @@
     stompClient = Stomp.over(socket);
     stompClient.debug = null;
     stompClient.connect({}, function() {
+      stompClient.send('/app/presence', {}, JSON.stringify({mssv: myMssv, online: true, clientId: presenceClientId}));
       stompClient.subscribe('/topic/room/' + roomId, function(msg) {
-        renderMessage(JSON.parse(msg.body));
+        const data = JSON.parse(msg.body);
+        renderMessage(data);
+        if (data.nguoiGuiMssv !== myMssv) markSeen();
       });
+      stompClient.subscribe('/topic/room/' + roomId + '/seen', function(msg) {
+        const data = JSON.parse(msg.body);
+        if (data.viewerMssv !== myMssv) showSeenMarkers();
+      });
+      stompClient.subscribe('/topic/presence', function(msg) {
+        const data = JSON.parse(msg.body);
+        updatePresence(data.mssv, data.online);
+      });
+      subscribeVisibleRooms();
+      stompClient.subscribe('/topic/notify/' + myMssv, function(msg) {
+        const data = JSON.parse(msg.body);
+        if (data.type === 'MESSAGE' && data.roomId !== roomId) {
+          pollUnreadCounts();
+          showToast(data.senderName + ': ' + data.preview, '/room/' + data.roomId);
+        }
+        if (data.type === 'FRIEND_REQUEST') showToast(data.senderName + ' da gui loi moi ket ban', '/friends');
+      });
+      markSeen();
       scrollBottom();
     });
   }
@@ -302,6 +354,11 @@
     const input = document.getElementById('noiDung');
     const text = input.value.trim();
     if (!text) return;
+    if (!stompClient || !stompClient.connected) {
+      connect();
+      showToast('Dang ket noi lai, vui long gui lai sau vai giay');
+      return;
+    }
     stompClient.send('/app/sendMessage', {}, JSON.stringify({
       roomId: roomId, nguoiGui: myMssv, noiDung: text
     }));
@@ -311,6 +368,11 @@
 
   function uploadAndSend() {
     if (!selectedFile) return;
+    if (!stompClient || !stompClient.connected) {
+      connect();
+      showToast('Dang ket noi lai, vui long gui lai sau vai giay');
+      return;
+    }
     const btn = document.getElementById('sendBtn');
     btn.disabled = true;
     const formData = new FormData();
@@ -334,6 +396,7 @@
 
     const row = document.createElement('div');
     row.className = 'msg-row gap-top ' + (isMe ? 'me' : 'other');
+    row.dataset.sender = msg.nguoiGuiMssv || (isMe ? myMssv : '');
 
     if (!isMe) {
       const sender = document.createElement('div');
@@ -393,8 +456,166 @@
     time.textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
     row.appendChild(time);
 
+    if (isMe) {
+      const seen = document.createElement('div');
+      seen.className = 'seen-marker';
+      seen.textContent = 'Da xem';
+      row.appendChild(seen);
+    }
+
     box.appendChild(row);
     scrollBottom();
+  }
+
+  function markSeen() {
+    if (stompClient && stompClient.connected) {
+      stompClient.send('/app/seen', {}, JSON.stringify({roomId: String(roomId), viewerMssv: myMssv}));
+    }
+  }
+
+  function showSeenMarkers() {
+    document.querySelectorAll('.msg-row.me .seen-marker').forEach(el => el.classList.add('show'));
+  }
+
+  function updatePresence(mssv, online) {
+    document.querySelectorAll('[data-user="' + mssv + '"] .presence-dot').forEach(dot => {
+      dot.classList.toggle('online', online);
+      dot.classList.toggle('offline', !online);
+    });
+    document.querySelectorAll('[data-user="' + mssv + '"] .presence-state').forEach(state => {
+      state.textContent = online ? 'Online' : 'Offline';
+      state.classList.toggle('online', online);
+      state.classList.toggle('offline', !online);
+    });
+  }
+
+  function setUnread(roomIdValue, count) {
+    const cappedCount = Math.min(count, 5);
+    document.querySelectorAll('[data-badge-room="' + roomIdValue + '"]').forEach(badge => {
+      badge.textContent = '+' + cappedCount;
+      badge.classList.toggle('show', count > 0);
+    });
+    document.querySelectorAll('[data-room="' + roomIdValue + '"]').forEach(link => {
+      link.classList.toggle('has-unread', count > 0);
+    });
+  }
+
+  function markRoomUnread(roomIdValue, eventKey) {
+    if (eventKey && recentlyCounted.has(eventKey)) return;
+    if (eventKey) {
+      recentlyCounted.add(eventKey);
+      setTimeout(() => recentlyCounted.delete(eventKey), 3000);
+    }
+    const key = unreadPrefix + roomIdValue;
+    const count = Math.min(parseInt(localStorage.getItem(key) || '0', 10) + 1, 5);
+    localStorage.setItem(key, String(count));
+    setUnread(roomIdValue, count);
+  }
+
+  function subscribeVisibleRooms() {
+    const roomIds = new Set((sidebarRoomIds || []).map(id => String(id)));
+    roomIds.delete(String(roomId));
+
+    roomIds.forEach(sidebarRoomId => {
+      stompClient.subscribe('/topic/room/' + sidebarRoomId, frame => {
+        const data = JSON.parse(frame.body);
+        const sender = data.nguoiGuiMssv || data.nguoiGui;
+        const isMine = sender === myMssv || sender === myName;
+        if (!isMine) {
+          pollUnreadCounts();
+          showToast((data.nguoiGui || 'Tin nhan moi') + ': ' + (data.noiDung || data.fileName || 'File moi'), '/room/' + sidebarRoomId);
+        }
+      });
+    });
+  }
+
+  function getSidebarRoomIds() {
+    const ids = new Set((sidebarRoomIds || []).map(id => String(id)));
+    document.querySelectorAll('[data-badge-room]').forEach(badge => ids.add(String(badge.dataset.badgeRoom)));
+    return Array.from(ids).filter(Boolean);
+  }
+
+  function getSidebarUserIds() {
+    const ids = new Set();
+    document.querySelectorAll('[data-user]').forEach(item => ids.add(String(item.dataset.user)));
+    return Array.from(ids).filter(Boolean);
+  }
+
+  function pollUnreadCounts() {
+    const ids = getSidebarRoomIds();
+    if (ids.length === 0) return;
+    fetch('/api/sidebar/unread?roomIds=' + encodeURIComponent(ids.join(',')))
+      .then(res => res.ok ? res.json() : {})
+      .then(data => {
+        ids.forEach(sidebarRoomId => {
+          const serverCount = Number(data[sidebarRoomId] || 0);
+          const count = sidebarRoomId === String(roomId) ? 0 : serverCount;
+          localStorage.setItem(unreadPrefix + sidebarRoomId, String(Math.min(count, 5)));
+          setUnread(sidebarRoomId, count);
+        });
+      })
+      .catch(() => {});
+  }
+
+  function sendHeartbeat() {
+    fetch('/api/presence/heartbeat?clientId=' + encodeURIComponent(presenceClientId), { method: 'POST' }).catch(() => {});
+  }
+
+  function sendOffline() {
+    const url = '/api/presence/offline?clientId=' + encodeURIComponent(presenceClientId);
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url);
+    } else {
+      fetch(url, { method: 'POST', keepalive: true }).catch(() => {});
+    }
+  }
+
+  function pollPresence() {
+    const ids = getSidebarUserIds();
+    if (ids.length === 0) return;
+    fetch('/api/sidebar/presence?mssvs=' + encodeURIComponent(ids.join(',')))
+      .then(res => res.ok ? res.json() : {})
+      .then(data => {
+        ids.forEach(mssv => updatePresence(mssv, Boolean(data[mssv])));
+      })
+      .catch(() => {});
+  }
+
+  function postCurrentRoomSeen() {
+    fetch('/api/room/' + roomId + '/seen', { method: 'POST' })
+      .then(res => res.ok ? res : fetch('/api/room/' + roomId + '/seen'))
+      .then(() => {
+        clearCurrentRoomUnread();
+        pollUnreadCounts();
+      })
+      .catch(() => {});
+  }
+
+  function loadUnreadBadges() {
+    document.querySelectorAll('[data-badge-room]').forEach(badge => {
+      const badgeRoomId = badge.dataset.badgeRoom;
+      setUnread(badgeRoomId, parseInt(localStorage.getItem(unreadPrefix + badgeRoomId) || '0', 10));
+    });
+  }
+
+  function clearCurrentRoomUnread() {
+    localStorage.removeItem(unreadPrefix + roomId);
+    setUnread(roomId, 0);
+  }
+
+  function showToast(msg, url) {
+    let toast = document.getElementById('__toast__');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = '__toast__';
+      toast.style.cssText = 'position:fixed;right:24px;bottom:24px;z-index:9999;background:#1e2128;border:1px solid rgba(212,245,60,.35);color:#e8eaf0;padding:12px 16px;border-radius:10px;font-size:13px;max-width:320px;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,.35);opacity:0;transition:opacity .2s';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.onclick = () => { if (url) location.href = url; };
+    toast.style.opacity = '1';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.style.opacity = '0', 4500);
   }
 
   function handleFileSelect(input) {
@@ -429,6 +650,16 @@
     box.scrollTop = box.scrollHeight;
   }
 
+  loadUnreadBadges();
+  clearCurrentRoomUnread();
+  sendHeartbeat();
+  postCurrentRoomSeen();
+  pollUnreadCounts();
+  pollPresence();
+  setInterval(pollUnreadCounts, 2500);
+  setInterval(pollPresence, 4000);
+  setInterval(sendHeartbeat, 10000);
+  window.addEventListener('pagehide', sendOffline);
   connect();
 </script>
 </body>

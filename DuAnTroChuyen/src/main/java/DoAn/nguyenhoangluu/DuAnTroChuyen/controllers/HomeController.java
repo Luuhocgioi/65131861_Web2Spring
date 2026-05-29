@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import DoAn.nguyenhoangluu.DuAnTroChuyen.entity.ChatRoom;
 import DoAn.nguyenhoangluu.DuAnTroChuyen.entity.SinhVien;
 import DoAn.nguyenhoangluu.DuAnTroChuyen.repository.ChatRoomRepository;
+import DoAn.nguyenhoangluu.DuAnTroChuyen.repository.SinhVienRepository;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -18,6 +19,9 @@ public class HomeController {
 
     @Autowired
     private ChatRoomRepository chatRoomRepository;
+
+    @Autowired
+    private SinhVienRepository sinhVienRepository;
 
     @GetMapping("/home")
     public String home(Model model, HttpSession session) {
@@ -57,10 +61,15 @@ public class HomeController {
         List<ChatRoom> rooms = new ArrayList<>();
         rooms.add(khoaRoom);
         rooms.add(lopRoom);
+        List<Long> sidebarRoomIds = new ArrayList<>();
+        rooms.forEach(r -> sidebarRoomIds.add(r.getId()));
+        privateRooms.forEach(r -> sidebarRoomIds.add(r.getId()));
 
         model.addAttribute("sv", sv);
         model.addAttribute("rooms", rooms);
         model.addAttribute("privateRooms", privateRooms);
+        model.addAttribute("allStudents", sinhVienRepository.findAll());
+        model.addAttribute("sidebarRoomIds", sidebarRoomIds);
 
         return "home";
     }
