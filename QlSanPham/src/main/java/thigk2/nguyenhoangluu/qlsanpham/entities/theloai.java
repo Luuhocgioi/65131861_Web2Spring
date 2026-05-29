@@ -25,6 +25,30 @@ public class theloai {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<sanpham> SanPham;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<sanpham> getSanPham() {
+		return SanPham;
+	}
+
+	public void setSanPham(List<sanpham> sanPham) {
+		SanPham = sanPham;
+	}
     
    
 }

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1013; --surface: #16181d; --border: #22252e;
+    --accent: #d4f53c; --text: #e8eaf0; --muted: #6b7280; --hover: #1e2128;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: grid; grid-template-columns: 240px 1fr; }
+
+  /* SIDEBAR */
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; padding: 28px 16px; gap: 4px; overflow-y: auto; }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; padding: 0 12px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text); }
+  .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+  .user-block { padding: 12px; border-radius: 10px; background: var(--hover); margin-bottom: 8px; }
+  .user-block .label { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
+  .user-block .mssv { font-size: 12px; color: var(--accent); font-weight: 500; margin-bottom: 1px; }
+  .user-block .name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+  .nav-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 12px 12px 4px; }
+  .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; transition: background 0.15s, color 0.15s; }
+  .nav-link:hover { background: var(--hover); color: var(--text); }
+  .nav-link .icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+  .spacer { flex: 1; }
+  .online-badge { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 4px; padding-top: 16px; }
+  .online-badge .dot { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; }
+
+  /* MAIN */
+  .main { display: flex; flex-direction: column; }
+  .topbar { padding: 32px 40px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: space-between; }
+  .page-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -0.5px; line-height: 1; margin-bottom: 6px; }
+  .page-sub { font-size: 13px; color: var(--muted); }
+  .friends-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--accent); color: #0f1013; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s, transform 0.15s; }
+  .friends-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  .content { padding: 32px 40px; flex: 1; display: flex; flex-direction: column; gap: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .section-head h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+  .section-head .line { flex: 1; height: 1px; background: var(--border); }
+
+  /* ROOM GRID */
+  .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .room-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-decoration: none; display: flex; flex-direction: column; gap: 12px; transition: border-color 0.15s, background 0.15s, transform 0.15s; }
+  .room-card:hover { border-color: rgba(212,245,60,0.35); background: var(--hover); transform: translateY(-2px); }
+  .room-top { display: flex; align-items: center; justify-content: space-between; }
+  .room-hash { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--border); transition: color 0.15s; }
+  .room-at   { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--border); transition: color 0.15s; }
+  .room-card:hover .room-hash { color: var(--accent); }
+  .room-card:hover .room-at   { color: #38d9f5; }
+  .room-active { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; }
+  .room-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .room-id { font-size: 11px; color: var(--muted); }
+  .empty { grid-column: 1/-1; padding: 40px 0; text-align: center; color: var(--muted); font-size: 13px; }
+  .empty span { font-size: 28px; display: block; margin-bottom: 8px; opacity: 0.4; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="/home" class="logo"><div class="logo-dot"></div>ChatZone</a>
+
+  <div class="user-block">
+    <div class="label">Sinh viên</div>
+    <div class="mssv" th:text="${sv.mssv}">22521234</div>
+    <div class="name" th:text="${sv.hoTen}">Nguyễn Văn A</div>
+  </div>
+
+  <div class="nav-label">Điều hướng</div>
+  <a href="/home"    class="nav-link"><span class="icon">⊞</span> Tổng quan</a>
+  <a href="/friends" class="nav-link"><span class="icon">＋</span> Kết bạn</a>
+
+  <div class="nav-label">Phòng nhóm</div>
+  <th:block th:each="room : ${rooms}">
+    <a th:href="@{/room/{id}(id=${room.id})}" class="nav-link">
+      <span class="icon">#</span>
+      <span th:text="${room.tenRoom}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    </a>
+  </th:block>
+
+ <div class="nav-label">Chat riêng</div>
+
+<th:block th:if="${not #lists.isEmpty(privateRooms)}">
+
+  <th:block th:each="room : ${privateRooms}">
+
+    <a th:href="@{/room/{id}(id=${room.id})}" class="nav-link">
+
+      <span class="icon">@</span>
+
+      <span
+        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+        th:text="${room.user1.mssv == sv.mssv ? room.user2.hoTen : room.user1.hoTen}">
+      </span>
+
+    </a>
+
+  </th:block>
+
+</th:block>
+
+  <div class="spacer"></div>
+  <div class="online-badge"><div class="dot"></div>Đang hoạt động</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Xin chào, <span th:text="${sv.hoTen}">Bạn</span> 👋</div>
+      <div class="page-sub">Chọn phòng để bắt đầu trò chuyện.</div>
+    </div>
+    <a href="/friends" class="friends-btn">＋ Kết bạn</a>
+  </div>
+
+  <div class="content">
+
+    <!-- PHÒNG NHÓM -->
+    <div>
+      <div class="section-head">
+        <h2>Phòng nhóm</h2>
+        <div class="line"></div>
+      </div>
+      <div class="room-grid">
+        <th:block th:if="${#lists.isEmpty(rooms)}">
+          <div class="empty"><span>⊘</span>Chưa có phòng nhóm nào.</div>
+        </th:block>
+        <th:block th:each="room : ${rooms}">
+          <a th:href="@{/room/{id}(id=${room.id})}" class="room-card">
+            <div class="room-top">
+              <div class="room-hash">#</div>
+              <div class="room-active"></div>
+            </div>
+            <div>
+              <div class="room-name" th:text="${room.tenRoom}">Tên phòng</div>
+              <div class="room-id">ID: <span th:text="${room.id}">001</span></div>
+            </div>
+          </a>
+        </th:block>
+      </div>
+    </div>
+
+    <!-- CHAT RIÊNG -->
+   <div>
+  <div class="section-head">
+    <h2>Chat riêng</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="room-grid">
+
+    <th:block th:if="${#lists.isEmpty(privateRooms)}">
+      <div class="empty">
+        <span>@</span>
+        Chưa có cuộc trò chuyện riêng nào.
+      </div>
+    </th:block>
+
+    <th:block th:each="room : ${privateRooms}">
+
+      <a th:href="@{/room/{id}(id=${room.id})}" class="room-card">
+
+        <div class="room-top">
+          <div class="room-at">@</div>
+          <div class="room-active"></div>
+        </div>
+
+        <div>
+
+          <!-- Tên người còn lại -->
+          <div class="room-name"
+               th:text="${room.user1.mssv == sv.mssv ? room.user2.hoTen : room.user1.hoTen}">
+          </div>
+
+         
+
+        </div>
+
+      </a>
+
+    </th:block>
+
+  </div>
+</div>
+
+  </div>
+</main>
+
+</body>
+</html>
